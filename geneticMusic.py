@@ -1,5 +1,5 @@
 import copy
-import pprint
+from pprint import pprint
 import random
 import string
 import pickle
@@ -124,7 +124,7 @@ def main(argv=None):
     else:
         print("goodbye")
         data = pickle.load(open(filename+".pkl", "rb"))
-        pprint.pprint(data)
+        pprint(data)
         
 if __name__ == "__main__":
     main()
