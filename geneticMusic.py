@@ -72,7 +72,7 @@ class Song:
         self.scale = Scale(self.key, self.mode)
         self.score = -1
     def __repr__(self):
-        return ( "Song('name':%s, 'number':%s.%s, )" %(repr(self.name), repr(self.generation), repr(self.songnum))) 
+        return ( "Song('name' : %s, 'number' : %s.%s, 'scale' : %s )" %(repr(self.name), repr(self.generation), repr(self.songnum), repr(self.scale))) 
 
     def getKey(self):
         return notes[self.key]
