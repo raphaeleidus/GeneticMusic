@@ -4,6 +4,7 @@ import random
 import string
 import pickle
 import sys
+import random
 from urllib.request import urlopen
 from progress_bar import ProgressBar
 
@@ -64,12 +65,14 @@ class Song:
         self.mutationPoints = 10
         self.generation = 0
         self.songnum = 0
-        self.name = randomWord(0) + " " +  randomWord(1)
+        self.name = randomWord(0) + " " + randomWord(1)
         self.bpm = random.randint(100, 200)
         self.key = random.randint(base,base+octave-1)
         self.mode = random.choice(modes)
         self.scale = Scale(self.key, self.mode)
         self.score = -1
+    def __repr__(self):
+        return ( "Song('name':%s, 'number':%s.%s, )" %(repr(self.name), repr(self.generation), repr(self.songnum))) 
 
     def getKey(self):
         return notes[self.key]
@@ -96,9 +99,7 @@ def main(argv=None):
         data = pickle.load(open(filename+".pkl", "rb"))
         songs = data["Songs"]
         for song in songs:
-            print ("%d.%d: %s - %d bpm" % (song.generation, song.songnum, song.name, song.bpm))
-            print ("%s %s Scale" %(song.getKey(), song.mode.name))
-            print ([notes[note] for note in song.scale.mainOctave()])
+            print ("%d.%d: %s" % (song.generation, song.songnum, song.name))
             if song.score == -1:
                 while True:
                     try:
@@ -122,6 +123,8 @@ def main(argv=None):
         print("Generation 0 generated and saved to file")
     else:
         print("goodbye")
+        data = pickle.load(open(filename+".pkl", "rb"))
+        pprint.pprint(data)
         
 if __name__ == "__main__":
     main()
