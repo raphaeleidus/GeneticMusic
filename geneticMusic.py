@@ -10,7 +10,7 @@ from types import *
 base = 41 #note value of middle A
 octave = 12 #there are 12 potential notes in each octave
 generationSize = 20 #how many songs should be generated in each generation
-
+filename = "GeneticMusic" #.pkl will be added
 noteList = ['A-1','A-1#','B-1','C-1','C-1#','D-1','D-1#','E-1','F-1','F-1#','G-1','G-1#',
         'A','A#','B','C','C#','D','D#','E','F','F#','G','G#',
         'A2','A2#','B2','C2','C2#','D2','D2#','E2','F2','F2#','G2','G2#',
@@ -93,7 +93,7 @@ def main(argv=None):
     choice = prompt("Please select an option", ["1", "2", "3"], True)
     if choice == "1":
         print ("Loading last generation")
-        data = pickle.load(open("GeneticMusic.pkl", "rb"))
+        data = pickle.load(open(filename+".pkl", "rb"))
         songs = data["Songs"]
         for song in songs:
             print ("%d.%d: %s - %d bpm" % (song.generation, song.songnum, song.name, song.bpm))
@@ -104,7 +104,7 @@ def main(argv=None):
                     try:
                         score = float(prompt("Song score"))
                         song.score = score
-                        pickle.dump(data, open("GeneticMusic.pkl", "wb"))
+                        pickle.dump(data, open(filename+".pkl", "wb"))
                         break
                     except ValueError:
                         print("Please enter a valid number")
@@ -117,7 +117,7 @@ def main(argv=None):
             songs.append(Song())
             s = songs[-1]
             s.songnum = i
-        pickle.dump(data, open("GeneticMusic.pkl", "wb"))
+        pickle.dump(data, open(filename+".pkl", "wb"))
         print("Generation 0 generated and saved to file")
     else:
         print("goodbye")
