@@ -1,1 +1,2 @@
-*.pkl #Pickle files
+*.pkl
+*.pyc
