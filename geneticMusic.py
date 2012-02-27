@@ -6,7 +6,6 @@ import pickle
 import sys
 from urllib.request import urlopen
 from progress_bar import ProgressBar
-from types import *
 
 base = 41 #note value of middle A
 octave = 12 #there are 12 potential notes in each octave
