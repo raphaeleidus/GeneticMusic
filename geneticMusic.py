@@ -5,6 +5,7 @@ import string
 import pickle
 import sys
 from urllib.request import urlopen
+from progress_bar import ProgressBar
 from types import *
 
 base = 41 #note value of middle A
@@ -113,7 +114,8 @@ def main(argv=None):
             print ()
             
     elif choice == "2":
-        for i in range(generationSize):
+        print ("Generating Songs")
+        for i in ProgressBar.progressbar(range(generationSize)):
             songs.append(Song())
             s = songs[-1]
             s.songnum = i
