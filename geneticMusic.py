@@ -54,11 +54,18 @@ class Scale:
     def mainOctave(self):
         return self.scaleNotes[8-1:(2*8)]
 
-def randomWord(wordType):
-    urls = ["http://api.wordnik.com/v4/words.json/randomWord?hasDictionaryDef=true&includePartOfSpeech=adverb,adjective&api_key=1a726d79d51b76f7664090f16750cc75292f05d3df6083875",
-            "http://api.wordnik.com/v4/words.json/randomWord?hasDictionaryDef=true&includePartOfSpeech=noun,adjective,verb&api_key=1a726d79d51b76f7664090f16750cc75292f05d3df6083875"]
-    words = str(urlopen(urls[wordType]).read()).replace('"', '')
-    return dict(item.split(":") for item in words[3:-2].split(','))['word']
+
+
+class Chord:
+    def __init__(self, scale):
+        self.scale = scale
+        self.notes=[]
+    def addRandomNote(self):
+        if len(self.notes) < 8:
+            randNote = random.choice(scale.scaleNotes)
+            while randNote in self.notes:
+                randNote = random.choice(scale.scaleNotes)
+            self.notes.append(randNote = randNote)
 
 class Song:
     def __init__(self):
@@ -70,7 +77,9 @@ class Song:
         self.key = random.randint(base,base+octave-1)
         self.mode = random.choice(modes)
         self.scale = Scale(self.key, self.mode)
+        self.chords = []
         self.score = -1
+        self.parent = None
     def __repr__(self):
         return ( "Song('name' : %s, 'number' : %s.%s, 'scale' : %s )" %(repr(self.name), repr(self.generation), repr(self.songnum), repr(self.scale))) 
 
