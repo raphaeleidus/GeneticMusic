@@ -55,17 +55,20 @@ class Scale:
         return self.scaleNotes[8-1:(2*8)]
 
 
-
 class Chord:
-    def __init__(self, scale):
-        self.scale = scale
+    def __init__(self):
         self.notes=[]
-    def addRandomNote(self):
-        if len(self.notes) < 8:
-            randNote = random.choice(scale.scaleNotes)
-            while randNote in self.notes:
-                randNote = random.choice(scale.scaleNotes)
-            self.notes.append(randNote = randNote)
+        self.intensity = random.randint(1, 10)
+    def addRandomNotes(self, scale, count):
+        self.notes = random.sample(scale.scaleNotes, count)
+    def __repr__(self):
+        return ( "Chord( notes : %s)" % (repr(self.notes)))
+
+def randomWord(wordType):
+    urls = ["http://api.wordnik.com/v4/words.json/randomWord?hasDictionaryDef=true&includePartOfSpeech=adverb,adjective&api_key=1a726d79d51b76f7664090f16750cc75292f05d3df6083875",
+            "http://api.wordnik.com/v4/words.json/randomWord?hasDictionaryDef=true&includePartOfSpeech=noun,adjective,verb&api_key=1a726d79d51b76f7664090f16750cc75292f05d3df6083875"]
+    words = str(urlopen(urls[wordType]).read()).replace('"', '')
+    return dict(item.split(":") for item in words[3:-2].split(','))['word']
 
 class Song:
     def __init__(self):
@@ -80,8 +83,13 @@ class Song:
         self.chords = []
         self.score = -1
         self.parent = None
+        for _ in range(20):
+            chord = Chord()
+            chord.addRandomNotes(self.scale, int(random.triangular(0,7,3)))
+            self.chords.append(chord)
+            
     def __repr__(self):
-        return ( "Song('name' : %s, 'number' : %s.%s, 'scale' : %s )" %(repr(self.name), repr(self.generation), repr(self.songnum), repr(self.scale))) 
+        return ( "Song('name' : %s, 'number' : %s.%s, 'scale' : %s, 'chords' : %s )" %(repr(self.name), repr(self.generation), repr(self.songnum), repr(self.scale), repr(self.chords))) 
 
     def getKey(self):
         return notes[self.key]
