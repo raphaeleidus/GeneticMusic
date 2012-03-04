@@ -8,7 +8,8 @@ import random
 from urllib.request import urlopen
 from progress_bar import ProgressBar
 
-base = 41 #note value of middle A
+middleC = 60
+base = middleC-3 #note value of middle A
 octave = 12 #there are 12 potential notes in each octave
 generationSize = 20 #how many songs should be generated in each generation
 filename = "GeneticMusic" #.pkl will be added
