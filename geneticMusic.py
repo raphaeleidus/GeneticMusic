@@ -77,10 +77,11 @@ class Chord:
       return ( "%s" % (repr(self.degrees)))
       
     def mutate(self):
-      ops = ['volumize', 'modify', 'add']
+      ops = ['volumize', 'add']
       if len(self.degrees) > 0:
         ops.append('remove')
       if len(self.degrees) != 0:
+        ops.append('modify')
         ops.append('rest')
       op = random.choice(ops)
       if op == 'volumize':
@@ -89,7 +90,7 @@ class Chord:
         newNote = random.randrange(22)
         while newNote in self.degrees:
           newNote = random.randrange(22)
-        oldNote = random.choice(degrees)
+        oldNote = random.choice(self.degrees)
         oldNote = newNote
       elif op == 'add':
         newNote = random.randrange(22)
@@ -144,20 +145,20 @@ class Song:
         return notes[self.key]
         
     def mutate(self):
-      self.mutationPoints = 8
-      self.mutations = [self.mBPM, self.mKey, self.mMode, self.mChord]
-      chordsAvail = range(20)
+      self.mutationPoints = 10
+      mutations = [self.mBPM, self.mKey, self.mMode, self.mChord]
+      chordsAvail = [i for i in range(20)]
       self.name = randomWord(0) + " " + randomWord(1)
-      while self.mutationPoint >= 1:
-        prop = random.randomint(0,22)
-        if prop >= len(self.mutations):
+      while self.mutationPoints >= 1:
+        prop = random.randint(0,22)
+        if prop >= len(mutations):
           prop = -1
-        mutator = self.mutations[prop]
+        mutator = mutations[prop]
         if mutator == self.mChord:
           self.mChord(chordsAvail.pop(random.randrange(len(chordsAvail))))
         else:
           mutator()
-          self.mutations.remove(mutator)
+          mutations.remove(mutator)
         self.mutationPoints = self.mutationPoints - 1
 
     def createFile(self):
@@ -200,7 +201,7 @@ def main(argv=None):
         songs = data[generation]
         for song in songs:
             print ("%d.%d: %s" % (song.generation, song.songnum, song.name))
-            if song.score == -1:
+            while song.score == -1:
                 while True:
                     try:
                         score = float(prompt("Song score"))
@@ -209,8 +210,7 @@ def main(argv=None):
                         break
                     except ValueError:
                         print("Please enter a valid number")
-            else:
-                print ("Score: %s" % (song.score))
+            print ("Score: %s" % (song.score))
             print ()
         songs = sorted(songs, key=lambda song: song.score, reverse=True)
         print ("Top 5 Songs of generation %d:"%(generation))
@@ -222,17 +222,25 @@ def main(argv=None):
           data[generation+1][index].generation = generation+1
           data[generation+1][index].score = -1
           data[generation+1][index].songnum = index
-        pickle.dump(data, open(filename+".pkl", "wb"))
+          data[generation+1][index].createFile()
         generation = generation+1
         print ("Generation %d initialized with 5 survivors. Mutating offspring now"%(generation))
         songs = data[max(list(data.keys()))]
-        for i in range(5):
+        for j in ProgressBar.progressbar(range(15)):
+          if j % 3 != 0:
+            continue
+          i = int(j/3)
           parent = songs[i]
           for _ in range(3):
             clone = copy.deepcopy(parent)
             clone.parents = [parent]
             clone.mutate()
+            clone.songnum = len(songs)
+            clone.createFile()
             songs.append(clone)
+        data[max(list(data.keys()))] = songs
+        pickle.dump(data, open(filename+".pkl", "wb"))
+        print ("Generation %d filled and saved to file."%(generation))
             
     elif choice == "2":
         print ("Generating Songs")
