@@ -143,7 +143,8 @@ def main(argv=None):
     if choice == "1":
         print ("Loading last generation")
         data = pickle.load(open(filename+".pkl", "rb"))
-        songs = data[max(list(data.keys()))]
+        generation = max(list(data.keys()))
+        songs = data[generation]
         for song in songs:
             print ("%d.%d: %s" % (song.generation, song.songnum, song.name))
             if song.score == -1:
@@ -158,6 +159,10 @@ def main(argv=None):
             else:
                 print ("Score: %s" % (song.score))
             print ()
+        songs = sorted(songs, key=lambda song: song.score, reverse=True)
+        print ("Top 5 Songs of generation %d:"%(generation))
+        for i in range(5):
+          print("%s -- %f"%(songs[i], songs[i].score))
             
     elif choice == "2":
         print ("Generating Songs")
@@ -169,6 +174,7 @@ def main(argv=None):
         pickle.dump(data, open(filename+".pkl", "wb"))
         print("Generation 0 generated and saved to file")
     else:
+
         data = pickle.load(open(filename+".pkl", "rb"))
         pprint(data[max(list(data.keys()))])
         
