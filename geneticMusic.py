@@ -153,7 +153,7 @@ class Song:
         if prop >= len(self.mutations):
           prop = -1
         mutator = self.mutations[prop]
-        if mutator === self.mChord:
+        if mutator == self.mChord:
           self.mChord(chordsAvail.pop(random.randrange(len(chordsAvail))))
         else:
           mutator()
