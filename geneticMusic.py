@@ -171,7 +171,8 @@ def main(argv=None):
           data[generation+1][index].songnum = index
         pickle.dump(data, open(filename+".pkl", "wb"))
         generation = generation+1
-        print ("Generation %d initialized with 5 survivors. Mutation offspring now"%(generation))
+        print ("Generation %d initialized with 5 survivors. Mutating offspring now"%(generation))
+        
           
         
             
