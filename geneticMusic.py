@@ -7,6 +7,7 @@ import sys
 import random
 from urllib.request import urlopen
 from progress_bar import ProgressBar
+from midiutil.MidiFile3 import MIDIFile
 
 middleC = 60
 base = middleC-3 #note value of middle A
@@ -59,7 +60,7 @@ class Scale:
 class Chord:
     def __init__(self):
         self.notes=[]
-        self.intensity = random.randint(1, 10)
+        self.intensity = random.randint(1, 10) * 10
     def addRandomNotes(self, scale, count):
         self.notes = random.sample(scale.scaleNotes, count)
     def __repr__(self):
@@ -94,6 +95,19 @@ class Song:
 
     def getKey(self):
         return notes[self.key]
+
+    def createFile(self):
+        MIDI = MIDIFile(1)
+        MIDI.addTrackName(0,0,self.name)
+        beat = 0
+        for chord in self.chords:
+            for note in chord.notes:
+                MIDI.addNote(0,0,note,beat,1,chord.intensity)
+            beat = beat + 1
+        midiFile = open("Songs/%d.%d-%s.mid"%(self.generation, self.songnum, self.name), 'wb')
+        MIDI.writeFile(midiFile)
+        midiFile.close()
+        
 
 def prompt(prompt, options = [], required = False):
     if len(options) > 0:
@@ -137,6 +151,7 @@ def main(argv=None):
             songs.append(Song())
             s = songs[-1]
             s.songnum = i
+            s.createFile()
         pickle.dump(data, open(filename+".pkl", "wb"))
         print("Generation 0 generated and saved to file")
     else:
