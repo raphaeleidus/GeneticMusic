@@ -62,11 +62,18 @@ class Scale:
 
 
 class Chord:
+    types = {"triad":[0,2,4], "seventh":[0,2,4,6], "dominant9":[0,2,4,8], "dominant11":[0,2,4,8,10], "dominant13":[0,2,3,8,12]}
     def __init__(self):
         self.degrees=[] #scale degrees
         self.intensity = random.randint(1, 10) * 10
     def addRandomNotes(self, count):
-        self.degrees = random.sample(range(7,15), count)
+        if count != 0:
+          count = 1
+        self.degrees = random.sample(range(22), count)
+        # self.chordType = random.choice(list(Chord.types.keys()))
+        # self.startDegree = random.randint(0,9)
+        # for degree in Chord.types[self.chordType]:
+          # self.degrees.append(degree+self.startDegree)
     def __repr__(self):
         return ( "Chord(notes: %s)" % (repr(self.degrees)))
 
@@ -74,7 +81,8 @@ def randomWord(wordType):
     urls = ["http://api.wordnik.com/v4/words.json/randomWord?hasDictionaryDef=true&includePartOfSpeech=adverb,adjective&api_key=1a726d79d51b76f7664090f16750cc75292f05d3df6083875",
             "http://api.wordnik.com/v4/words.json/randomWord?hasDictionaryDef=true&includePartOfSpeech=noun,adjective,verb&api_key=1a726d79d51b76f7664090f16750cc75292f05d3df6083875"]
     words = str(urlopen(urls[wordType]).read()).replace('"', '')
-    return dict(item.split(":") for item in words[3:-2].split(','))['word']
+    word = dict(item.split(":") for item in words[3:-2].split(','))['word']
+    return ''.join(e for e in word if e.isalnum())
 
 class Song:
     def __init__(self):
@@ -82,7 +90,7 @@ class Song:
         self.generation = 0
         self.songnum = 0
         self.name = randomWord(0) + " " + randomWord(1)
-        self.bpm = random.randint(100, 200)
+        self.bpm = random.randint(100, 300)
         self.key = random.randint(base,base+octave-1)
         self.mode = random.choice(modes)
         self.scale = Scale(self.key, self.mode)
@@ -95,7 +103,7 @@ class Song:
             self.chords.append(chord)
             
     def __repr__(self):
-        return ( "Song('name' : %s, 'number' : %s.%s, 'scale' : %s, 'chords' : %s )" %(repr(self.name), repr(self.generation), repr(self.songnum), repr(self.scale), repr(self.chords))) 
+        return ( "Song(%s.%s: %s, 'tempo': %s, 'scale' : %s, 'chords' : %s )" %(repr(self.generation), repr(self.songnum), repr(self.name), repr(self.bpm), repr(self.scale), repr(self.chords))) 
 
     def getKey(self):
         return notes[self.key]
@@ -103,6 +111,7 @@ class Song:
     def createFile(self):
         MIDI = MIDIFile(1)
         MIDI.addTrackName(0,0,self.name)
+        MIDI.addTempo(0,0, self.bpm)
         beat = 0
         for chord in self.chords:
             for degree in chord.degrees:
