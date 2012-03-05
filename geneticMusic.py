@@ -102,7 +102,7 @@ class Song:
             self.chords.append(chord)
             
     def __repr__(self):
-        return ( "Song(%s.%s: %s, 'tempo': %s, 'scale' : %s, 'chords' : %s )" %(repr(self.generation), repr(self.songnum), repr(self.name), repr(self.bpm), repr(self.scale), repr(self.chords))) 
+        return ( "Song(%s.%s: %s, Score:%s, Tempo:%s, Scale:%s, Chords:%s)" %(repr(self.generation), repr(self.songnum), repr(self.name), repr(self.score), repr(self.bpm), repr(self.scale), repr(self.chords))) 
 
     def getKey(self):
         return notes[self.key]
@@ -161,8 +161,19 @@ def main(argv=None):
             print ()
         songs = sorted(songs, key=lambda song: song.score, reverse=True)
         print ("Top 5 Songs of generation %d:"%(generation))
+        data[generation+1]=[]
         for i in range(5):
-          print("%s -- %f"%(songs[i], songs[i].score))
+          print(songs[i])
+          data[generation+1].append(copy.copy(songs[i]))
+          index = len(data[generation+1])-1
+          data[generation+1][index].generation = generation+1
+          data[generation+1][index].score = -1
+          data[generation+1][index].songnum = index
+        pickle.dump(data, open(filename+".pkl", "wb"))
+        generation = generation+1
+        print ("Generation %d initialized with 5 survivors. Mutation offspring now"%(generation))
+          
+        
             
     elif choice == "2":
         print ("Generating Songs")
