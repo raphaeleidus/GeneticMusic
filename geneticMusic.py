@@ -71,11 +71,10 @@ class Chord:
           count = 1
         self.degrees = random.sample(range(22), count)
         # self.chordType = random.choice(list(Chord.types.keys()))
-        # self.startDegree = random.randint(0,9)
-        # for degree in Chord.types[self.chordType]:
-          # self.degrees.append(degree+self.startDegree)
+        # startDegree = random.randint(0,9)
+        # self.degrees = [degree+startDegree for degree in Chord.types[self.chordType]]
     def __repr__(self):
-        return ( "Chord(notes: %s)" % (repr(self.degrees)))
+      return ( "%s" % (repr(self.degrees)))
 
 def randomWord(wordType):
     urls = ["http://api.wordnik.com/v4/words.json/randomWord?hasDictionaryDef=true&includePartOfSpeech=adverb,adjective&api_key=1a726d79d51b76f7664090f16750cc75292f05d3df6083875",
