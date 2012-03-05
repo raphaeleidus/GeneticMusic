@@ -75,6 +75,31 @@ class Chord:
         # self.degrees = [degree+startDegree for degree in Chord.types[self.chordType]]
     def __repr__(self):
       return ( "%s" % (repr(self.degrees)))
+      
+    def mutate(self):
+      ops = ['volumize', 'modify', 'add']
+      if len(self.degrees) > 0:
+        ops.append('remove')
+      if len(self.degrees) != 0:
+        ops.append('rest')
+      op = random.choice(ops)
+      if op == 'volumize':
+        self.intensity = random.randint(1, 10) * 10
+      elif op == 'modify':
+        newNote = random.randrange(22)
+        while newNote in self.degrees:
+          newNote = random.randrange(22)
+        oldNote = random.choice(degrees)
+        oldNote = newNote
+      elif op == 'add':
+        newNote = random.randrange(22)
+        while newNote in self.degrees:
+          newNote = random.randrange(22)
+        self.degrees.append(newNote)
+      elif op == 'rest':
+        self.degrees = []
+      else:
+        self.degrees.pop(random.randrange(len(self.degrees)))
 
 def randomWord(wordType):
     urls = ["http://api.wordnik.com/v4/words.json/randomWord?hasDictionaryDef=true&includePartOfSpeech=adverb,adjective&api_key=1a726d79d51b76f7664090f16750cc75292f05d3df6083875",
@@ -85,7 +110,6 @@ def randomWord(wordType):
 
 class Song:
     def __init__(self):
-        self.mutationPoints = 10
         self.generation = 0
         self.songnum = 0
         self.name = randomWord(0) + " " + randomWord(1)
@@ -101,11 +125,40 @@ class Song:
             chord.addRandomNotes(int(random.triangular(0,7,3)))
             self.chords.append(chord)
             
+    def mBPM(self):
+      self.bpm = random.randint(100, 300)
+      
+    def mKey(self):
+      self.key = random.randint(base,base+octave-1)
+      
+    def mMode(self):
+      self.mode = random.choice(modes)
+      
+    def mChord(self, chordNum):
+      self.chords[chordNum].mutate()
+    
     def __repr__(self):
         return ( "Song(%s.%s: %s, Score:%s, Tempo:%s, Scale:%s, Chords:%s)" %(repr(self.generation), repr(self.songnum), repr(self.name), repr(self.score), repr(self.bpm), repr(self.scale), repr(self.chords))) 
 
     def getKey(self):
         return notes[self.key]
+        
+    def mutate(self):
+      self.mutationPoints = 8
+      self.mutations = [self.mBPM, self.mKey, self.mMode, self.mChord]
+      chordsAvail = range(20)
+      self.name = randomWord(0) + " " + randomWord(1)
+      while self.mutationPoint >= 1:
+        prop = random.randomint(0,22)
+        if prop >= len(self.mutations):
+          prop = -1
+        mutator = self.mutations[prop]
+        if mutator === self.mChord:
+          self.mChord(chordsAvail.pop(random.randrange(len(chordsAvail))))
+        else:
+          mutator()
+          self.mutations.remove(mutator)
+        self.mutationPoints = self.mutationPoints - 1
 
     def createFile(self):
         MIDI = MIDIFile(1)
@@ -164,7 +217,7 @@ def main(argv=None):
         data[generation+1]=[]
         for i in range(5):
           print(songs[i])
-          data[generation+1].append(copy.copy(songs[i]))
+          data[generation+1].append(copy.deepcopy(songs[i]))
           index = len(data[generation+1])-1
           data[generation+1][index].generation = generation+1
           data[generation+1][index].score = -1
@@ -172,9 +225,14 @@ def main(argv=None):
         pickle.dump(data, open(filename+".pkl", "wb"))
         generation = generation+1
         print ("Generation %d initialized with 5 survivors. Mutating offspring now"%(generation))
-        
-          
-        
+        songs = data[max(list(data.keys()))]
+        for i in range(5):
+          parent = songs[i]
+          for _ in range(3):
+            clone = copy.deepcopy(parent)
+            clone.parents = [parent]
+            clone.mutate()
+            songs.append(clone)
             
     elif choice == "2":
         print ("Generating Songs")
@@ -186,7 +244,6 @@ def main(argv=None):
         pickle.dump(data, open(filename+".pkl", "wb"))
         print("Generation 0 generated and saved to file")
     else:
-
         data = pickle.load(open(filename+".pkl", "rb"))
         pprint(data[max(list(data.keys()))])
         
