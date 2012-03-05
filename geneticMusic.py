@@ -5,6 +5,7 @@ import string
 import pickle
 import sys
 import random
+import os
 from urllib.request import urlopen
 from progress_bar import ProgressBar
 from midiutil.MidiFile3 import MIDIFile
@@ -14,6 +15,7 @@ base = middleC-3 #note value of middle A
 octave = 12 #there are 12 potential notes in each octave
 generationSize = 20 #how many songs should be generated in each generation
 filename = "GeneticMusic" #.pkl will be added
+songFolder = "Songs"
 noteList = ['A-1','A-1#','B-1','C-1','C-1#','D-1','D-1#','E-1','F-1','F-1#','G-1','G-1#',
         'A','A#','B','C','C#','D','D#','E','F','F#','G','G#',
         'A2','A2#','B2','C2','C2#','D2','D2#','E2','F2','F2#','G2','G2#',
@@ -104,7 +106,9 @@ class Song:
             for note in chord.notes:
                 MIDI.addNote(0,0,note,beat,1,chord.intensity)
             beat = beat + 1
-        midiFile = open("Songs/%d.%d-%s.mid"%(self.generation, self.songnum, self.name), 'wb')
+        if not os.path.exists(songFolder):
+          os.makedirs(songFolder)
+        midiFile = open("%s/%d.%d-%s.mid"%(songFolder, self.generation, self.songnum, self.name), 'wb')
         MIDI.writeFile(midiFile)
         midiFile.close()
         
