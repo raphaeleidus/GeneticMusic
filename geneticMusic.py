@@ -44,29 +44,31 @@ modes = [
 
 class Scale:
     def __init__(self, key, mode):
-        self.start = key
-        self.key = notes[key]
-        self.mode = mode
-        self.scaleNotes = []
-        for note in self.mode.notes:
-            self.scaleNotes.append(note+self.start-octave)
-        for note in self.mode.notes:
-            self.scaleNotes.append(note+self.start)
-        for note in self.mode.notes:
-            self.scaleNotes.append(note+self.start+octave)
-        self.scaleNotes.append(self.start+(2*octave)) #repeat the first scale degree 2 octaves up
+      self.start = key
+      self.key = notes[key]
+      self.mode = mode
+      self.scaleNotes = []
+      for note in self.mode.notes:
+          self.scaleNotes.append(note+self.start-octave)
+      for note in self.mode.notes:
+          self.scaleNotes.append(note+self.start)
+      for note in self.mode.notes:
+          self.scaleNotes.append(note+self.start+octave)
+      self.scaleNotes.append(self.start+(2*octave)) #repeat the first scale degree 2 octaves up
     def mainOctave(self):
-        return self.scaleNotes[8-1:(2*8)]
+      return self.scaleNotes[8-1:(2*8)]
+    def __repr__(self):
+      return repr("%s %s" % (self.key, self.mode.name))
 
 
 class Chord:
     def __init__(self):
-        self.notes=[]
+        self.degrees=[] #scale degrees
         self.intensity = random.randint(1, 10) * 10
-    def addRandomNotes(self, scale, count):
-        self.notes = random.sample(scale.scaleNotes, count)
+    def addRandomNotes(self, count):
+        self.degrees = random.sample(range(7,15), count)
     def __repr__(self):
-        return ( "Chord( notes : %s)" % (repr(self.notes)))
+        return ( "Chord(notes: %s)" % (repr(self.degrees)))
 
 def randomWord(wordType):
     urls = ["http://api.wordnik.com/v4/words.json/randomWord?hasDictionaryDef=true&includePartOfSpeech=adverb,adjective&api_key=1a726d79d51b76f7664090f16750cc75292f05d3df6083875",
@@ -89,7 +91,7 @@ class Song:
         self.parent = None
         for _ in range(20):
             chord = Chord()
-            chord.addRandomNotes(self.scale, int(random.triangular(0,7,3)))
+            chord.addRandomNotes(int(random.triangular(0,7,3)))
             self.chords.append(chord)
             
     def __repr__(self):
@@ -103,8 +105,8 @@ class Song:
         MIDI.addTrackName(0,0,self.name)
         beat = 0
         for chord in self.chords:
-            for note in chord.notes:
-                MIDI.addNote(0,0,note,beat,1,chord.intensity)
+            for degree in chord.degrees:
+                MIDI.addNote(0,0,self.scale.scaleNotes[degree],beat,1,chord.intensity)
             beat = beat + 1
         if not os.path.exists(songFolder):
           os.makedirs(songFolder)
