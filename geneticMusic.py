@@ -67,8 +67,8 @@ class Chord:
         self.degrees=[] #scale degrees
         self.intensity = random.randint(1, 10) * 10
     def addRandomNotes(self, count):
-        if count != 0:
-          count = 1
+        #if count != 0:
+          #count = 1
         self.degrees = random.sample(range(22), count)
         # self.chordType = random.choice(list(Chord.types.keys()))
         # startDegree = random.randint(0,9)
@@ -95,7 +95,7 @@ class Song:
         self.scale = Scale(self.key, self.mode)
         self.chords = []
         self.score = -1
-        self.parent = None
+        self.parents = None
         for _ in range(20):
             chord = Chord()
             chord.addRandomNotes(int(random.triangular(0,7,3)))
@@ -136,14 +136,14 @@ def prompt(prompt, options = [], required = False):
 def main(argv=None):
     if argv is None:
         argv = sys.argv
-    data = {"Generation": 0, "Songs": []}
-    songs = data["Songs"]
-    print ("Would you like to:\n\t[1]Load a previous saved generation\n\t[2]Generate a new random generation\n\t[3]Exit")
+    data = {0:[]}
+    songs = data[max(list(data.keys()))]
+    print ("Would you like to:\n\t[1]Load a previous saved generation\n\t[2]Generate a new random generation\n\t[3]Print Previous Generation Data")
     choice = prompt("Please select an option", ["1", "2", "3"], True)
     if choice == "1":
         print ("Loading last generation")
         data = pickle.load(open(filename+".pkl", "rb"))
-        songs = data["Songs"]
+        songs = data[max(list(data.keys()))]
         for song in songs:
             print ("%d.%d: %s" % (song.generation, song.songnum, song.name))
             if song.score == -1:
@@ -169,9 +169,8 @@ def main(argv=None):
         pickle.dump(data, open(filename+".pkl", "wb"))
         print("Generation 0 generated and saved to file")
     else:
-        print("goodbye")
         data = pickle.load(open(filename+".pkl", "rb"))
-        pprint(data)
+        pprint(data[max(list(data.keys()))])
         
 if __name__ == "__main__":
     main()
