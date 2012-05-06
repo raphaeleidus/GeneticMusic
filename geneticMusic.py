@@ -63,7 +63,7 @@ class Song:
       types = {"majorTriad":[4, 3], "minorTriad":[3, 4], "augTriad":[4, 4], "dimTriad":[3, 3],
         "majorSeventh":[4, 3, 4], "minorSeventh":[3, 4, 3], "augSeventh":[4, 4, 2], "dimSeventh":[3, 3, 3], 
         "halfDimSeventh":[3, 3, 4], "minorMajorSeventh":[3, 4, 3], "domSeventh":[4, 3, 3], "augMajorSeventh":[4,4,3], 
-        "domNinth":[4,3,3,4], "domEleventh":[4,3,3,4,3], "domEleventh":[4,3,3,4,3,4]}
+        "domNinth":[4,3,3,4], "domEleventh":[4,3,3,4,3], "domThirteenth":[4,3,3,4,3,4]}
       for chord in self.chords:
         if (chord.duration == 4):
           fourBeatChords= fourBeatChords + 1
