@@ -94,6 +94,7 @@ class Song:
     
 
     def breed(self):
+      self.name = randomWord(0) + " " + randomWord(1)
       self.bpm = self.parents[random.randrange(2)].bpm
       for i in range(20):
         self.chords[i] = self.parents[random.randrange(2)].chords[i]    
