@@ -26,14 +26,14 @@ notes = {}
 for i in range(len(noteList)): #build dictionary of notes to lookup the name of the note later
     notes[i+base-octave] = noteList[i]
 
-pprint(notes)
 class Chord:
     types = {"triad":[0,2,4], "seventh":[0,2,4,6], "dominant9":[0,2,4,8], "dominant11":[0,2,4,8,10], "dominant13":[0,2,3,8,12]}
     def __init__(self):
-        self.degrees=[] #scale degrees
+        self.notes=[] 
+        self.duration = int(random.triangular(1,4,1))
         self.intensity = random.randint(1, 10) * 10
     def addRandomNotes(self, count):
-        self.degrees = random.sample(range(48), count)
+        self.notes = random.sample(range(48), count)
     def __repr__(self):
       return ( "%s" % (repr(self.degrees)))
 
@@ -67,7 +67,12 @@ class Song:
     
     def __repr__(self):
         return ( "Song(%s.%s: %s, Score:%s, Tempo:%s, Chords:%s)" %(repr(self.generation), repr(self.songnum), repr(self.name), repr(self.score), repr(self.bpm), repr(self.chords))) 
-        
+    
+
+    def breed(self):
+      self.bpm = self.parents[random.randrange(2)].bpm
+      for i in range(20):
+        self.chords[i] = self.parents[random.randrange(2)].chords[i]    
     def mutate(self):
       self.mutationPoints = 10
       mutations = [self.mBPM]
@@ -91,8 +96,8 @@ class Song:
         beat = 0
         for chord in self.chords:
             for note in chord.notes:
-                MIDI.addNote(0,0,degree+45,beat,1,chord.intensity)
-            beat = beat + 1
+                MIDI.addNote(0,0,note+45,beat,chord.duration,chord.intensity)
+            beat = beat + chord.duration
         if not os.path.exists(songFolder):
           os.makedirs(songFolder)
         midiFile = open("%s/%d.%d-%s.mid"%(songFolder, self.generation, self.songnum, self.name), 'wb')
@@ -121,6 +126,7 @@ def main(argv=None):
         print ("Loading last generation")
         data = pickle.load(open(filename+".pkl", "rb"))
         generation = max(list(data.keys()))
+        print("Processing Generation %d" % (generation))
         songs = data[generation]
         for song in songs:
             print ("%d.%d: %s" % (song.generation, song.songnum, song.name))
@@ -143,7 +149,7 @@ def main(argv=None):
           data[generation+1].append(copy.deepcopy(songs[i]))
           index = len(data[generation+1])-1
           data[generation+1][index].generation = generation+1
-          data[generation+1][index].score = 999999
+          data[generation+1][index].score = -1
           data[generation+1][index].songnum = index
           data[generation+1][index].createFile()
         generation = generation+1
@@ -153,11 +159,20 @@ def main(argv=None):
           if j % 3 != 0:
             continue
           i = int(j/3)
+          # mutated clone
           parent = songs[i]
-          for _ in range(3):
+          clone = copy.deepcopy(parent)
+          clone.parents = [parent]
+          clone.mutate()
+          clone.songnum = len(songs)
+          clone.createFile()
+          songs.append(clone)
+          # end of mutated clone
+
+          for k in range(i+1, 5):
             clone = copy.deepcopy(parent)
-            clone.parents = [parent]
-            clone.mutate()
+            clone.parents = [songs[i], songs[k]]
+            clone.breed()
             clone.songnum = len(songs)
             clone.createFile()
             songs.append(clone)
