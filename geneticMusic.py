@@ -50,7 +50,7 @@ class Song:
         self.name = randomWord(0) + " " + randomWord(1)
         self.bpm = random.randint(100, 300)
         self.chords = []
-        self.score = 9999999
+        self.score = -1
         self.parents = None
         for _ in range(20):
             chord = Chord()
@@ -94,6 +94,7 @@ class Song:
     
 
     def breed(self):
+      self.score = -1
       self.name = randomWord(0) + " " + randomWord(1)
       self.bpm = self.parents[random.randrange(2)].bpm
       for i in range(20):
@@ -151,63 +152,64 @@ def main(argv=None):
         print ("Loading last generation")
         data = pickle.load(open(filename+".pkl", "rb"))
         generation = max(list(data.keys()))
-        print("Processing Generation %d" % (generation))
-        songs = data[generation]
-        for song in songs:
-            print ("%d.%d: %s" % (song.generation, song.songnum, song.name))
-            while song.score == 9999999:
-                if(generation > 99 or (generation > 19 and generation % 10 == 0)):
-                    while True:
-                        try:
-                            score = float(prompt("Song score"))
-                            song.score = score
-                            pickle.dump(data, open(filename+".pkl", "wb"))
-                            break
-                        except ValueError:
-                            print("Please enter a valid number")
-                else:
-                  song.score = song.AutoScore()
-            print ("Score: %s" % (song.score))
-            print ()
-        pickle.dump(data, open(filename+".pkl", "wb"))
-        songs = sorted(songs, key=lambda song: song.score, reverse=True)
-        print ("Top 5 Songs of generation %d:"%(generation))
-        data[generation+1]=[]
-        for i in range(5):
-          print(songs[i])
-          data[generation+1].append(copy.deepcopy(songs[i]))
-          index = len(data[generation+1])-1
-          data[generation+1][index].generation = generation+1
-          data[generation+1][index].score = 9999999
-          data[generation+1][index].songnum = index
-          data[generation+1][index].createFile()
-        generation = generation+1
-        print ("Generation %d initialized with 5 survivors. Mutating offspring now"%(generation))
-        songs = data[max(list(data.keys()))]
-        for j in ProgressBar.progressbar(range(15)):
-          if j % 3 != 0:
-            continue
-          i = int(j/3)
-          # mutated clone
-          parent = songs[i]
-          clone = copy.deepcopy(parent)
-          clone.parents = [parent]
-          clone.mutate()
-          clone.songnum = len(songs)
-          clone.createFile()
-          songs.append(clone)
-          # end of mutated clone
-
-          for k in range(i+1, 5):
+        while(true):
+          print("Processing Generation %d" % (generation))
+          songs = data[generation]
+          for song in songs:
+              print ("%d.%d: %s" % (song.generation, song.songnum, song.name))
+              while song.score == -1:
+                  if(generation > 99 or (generation > 19 and generation % 10 == 0)):
+                      while True:
+                          try:
+                              score = float(prompt("Song score"))
+                              song.score = score
+                              pickle.dump(data, open(filename+".pkl", "wb"))
+                              break
+                          except ValueError:
+                              print("Please enter a valid number")
+                  else:
+                    song.score = song.AutoScore()
+              print ("Score: %s" % (song.score))
+              print ()
+          pickle.dump(data, open(filename+".pkl", "wb"))
+          songs = sorted(songs, key=lambda song: song.score, reverse=True)
+          print ("Top 5 Songs of generation %d:"%(generation))
+          data[generation+1]=[]
+          for i in range(5):
+            print(songs[i])
+            data[generation+1].append(copy.deepcopy(songs[i]))
+            index = len(data[generation+1])-1
+            data[generation+1][index].generation = generation+1
+            data[generation+1][index].score = -1
+            data[generation+1][index].songnum = index
+            data[generation+1][index].createFile()
+          generation = generation+1
+          print ("Generation %d initialized with 5 survivors. Mutating offspring now"%(generation))
+          songs = data[max(list(data.keys()))]
+          for j in ProgressBar.progressbar(range(15)):
+            if j % 3 != 0:
+              continue
+            i = int(j/3)
+            # mutated clone
+            parent = songs[i]
             clone = copy.deepcopy(parent)
-            clone.parents = [songs[i], songs[k]]
-            clone.breed()
+            clone.parents = [parent]
+            clone.mutate()
             clone.songnum = len(songs)
             clone.createFile()
             songs.append(clone)
-        data[max(list(data.keys()))] = songs
-        pickle.dump(data, open(filename+".pkl", "wb"))
-        print ("Generation %d filled and saved to file."%(generation))
+            # end of mutated clone
+
+            for k in range(i+1, 5):
+              clone = copy.deepcopy(parent)
+              clone.parents = [songs[i], songs[k]]
+              clone.breed()
+              clone.songnum = len(songs)
+              clone.createFile()
+              songs.append(clone)
+          data[max(list(data.keys()))] = songs
+          pickle.dump(data, open(filename+".pkl", "wb"))
+          print ("Generation %d filled and saved to file."%(generation))
             
     elif choice == "2":
         print ("Generating Songs")
