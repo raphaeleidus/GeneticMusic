@@ -60,7 +60,7 @@ class Song:
     def AutoScore(self):
       totScore = 0
       fourBeatChords = 0
-      types= {3: {"majorTriad":[4, 3], "minorTriad":[3, 4], "augTriad":[4, 4], "dimTriad":[3, 3]),
+      types= {3: {"majorTriad":[4, 3], "minorTriad":[3, 4], "augTriad":[4, 4], "dimTriad":[3, 3]},
         4: {"majorSeventh":[4, 3, 4], "minorSeventh":[3, 4, 3], "augSeventh":[4, 4, 2], "dimSeventh":[3, 3, 3], 
         "halfDimSeventh":[3, 3, 4], "minorMajorSeventh":[3, 4, 3], "domSeventh":[4, 3, 3], "augMajorSeventh":[4,4,3]},
         5: {"domNinth":[4,3,3,4]},
