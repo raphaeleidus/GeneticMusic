@@ -27,7 +27,6 @@ for i in range(len(noteList)): #build dictionary of notes to lookup the name of 
     notes[i+base-octave] = noteList[i]
 
 class Chord:
-    types = {"triad":[0,2,4], "seventh":[0,2,4,6], "dominant9":[0,2,4,8], "dominant11":[0,2,4,8,10], "dominant13":[0,2,3,8,12]}
     def __init__(self):
         self.notes=[] 
         self.duration = int(random.triangular(1,4,1))
@@ -51,13 +50,33 @@ class Song:
         self.name = randomWord(0) + " " + randomWord(1)
         self.bpm = random.randint(100, 300)
         self.chords = []
-        self.score = -1
+        self.score = 9999999
         self.parents = None
         for _ in range(20):
             chord = Chord()
             chord.addRandomNotes(int(random.triangular(0,7,3)))
             self.chords.append(chord)
             
+    def AutoScore(self):
+      totScore = 0
+      fourBeatChords = 0
+      types = {"majorTriad":[4, 3], "minorTriad":[3, 4], "augTriad":[4, 4], "dimTriad":[3, 3],
+        "majorSeventh":[4, 3, 4], "minorSeventh":[3, 4, 3], "augSeventh":[4, 4, 2], "dimSeventh":[3, 3, 3], 
+        "halfDimSeventh":[3, 3, 4], "minorMajorSeventh":[3, 4, 3], "domSeventh":[4, 3, 3] }
+      for note in self.notes:
+        if (note.duration == 4):
+          fourBeatChords= fourBeatChords + 1
+      if (fourBeatChords < 15):
+        totScore = totScore + 1
+      if (fourBeatChords < 10):
+        totScore = totScore + 1
+      if (fourBeatChords < 8):
+        totScore = totScore + 1
+      if (fourBeatChords < 6):
+        totScore = totScore + 1
+      if (fourBeatChords < 4):
+        totScore = totScore + 1
+      return totScore
     def mBPM(self):
       self.bpm = random.randint(100, 300)
       
@@ -130,17 +149,21 @@ def main(argv=None):
         songs = data[generation]
         for song in songs:
             print ("%d.%d: %s" % (song.generation, song.songnum, song.name))
-            while song.score == -1:
-                while True:
-                    try:
-                        score = float(prompt("Song score"))
-                        song.score = score
-                        pickle.dump(data, open(filename+".pkl", "wb"))
-                        break
-                    except ValueError:
-                        print("Please enter a valid number")
+            while song.score == 9999999:
+                if(generation > 99 or (generation > 19 and generation % 10 == 0)):
+                    while True:
+                        try:
+                            score = float(prompt("Song score"))
+                            song.score = score
+                            pickle.dump(data, open(filename+".pkl", "wb"))
+                            break
+                        except ValueError:
+                            print("Please enter a valid number")
+                else:
+                  song.score = song.AutoScore()
             print ("Score: %s" % (song.score))
             print ()
+        pickle.dump(data, open(filename+".pkl", "wb"))
         songs = sorted(songs, key=lambda song: song.score, reverse=True)
         print ("Top 5 Songs of generation %d:"%(generation))
         data[generation+1]=[]
@@ -149,7 +172,7 @@ def main(argv=None):
           data[generation+1].append(copy.deepcopy(songs[i]))
           index = len(data[generation+1])-1
           data[generation+1][index].generation = generation+1
-          data[generation+1][index].score = -1
+          data[generation+1][index].score = 9999999
           data[generation+1][index].songnum = index
           data[generation+1][index].createFile()
         generation = generation+1
