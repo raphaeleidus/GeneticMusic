@@ -36,32 +36,6 @@ class Chord:
         self.degrees = random.sample(range(48), count)
     def __repr__(self):
       return ( "%s" % (repr(self.degrees)))
-      
-    def mutate(self):
-      ops = ['volumize', 'add']
-      if len(self.degrees) > 0:
-        ops.append('remove')
-      if len(self.degrees) != 0:
-        ops.append('modify')
-        ops.append('rest')
-      op = random.choice(ops)
-      if op == 'volumize':
-        self.intensity = random.randint(1, 10) * 10
-      elif op == 'modify':
-        newNote = random.randrange(22)
-        while newNote in self.degrees:
-          newNote = random.randrange(22)
-        oldNote = random.choice(self.degrees)
-        oldNote = newNote
-      elif op == 'add':
-        newNote = random.randrange(22)
-        while newNote in self.degrees:
-          newNote = random.randrange(22)
-        self.degrees.append(newNote)
-      elif op == 'rest':
-        self.degrees = []
-      else:
-        self.degrees.pop(random.randrange(len(self.degrees)))
 
 def randomWord(wordType):
     urls = ["http://api.wordnik.com/v4/words.json/randomWord?hasDictionaryDef=true&includePartOfSpeech=adverb,adjective&api_key=1a726d79d51b76f7664090f16750cc75292f05d3df6083875",
@@ -169,7 +143,7 @@ def main(argv=None):
           data[generation+1].append(copy.deepcopy(songs[i]))
           index = len(data[generation+1])-1
           data[generation+1][index].generation = generation+1
-          data[generation+1][index].score = -1
+          data[generation+1][index].score = 999999
           data[generation+1][index].songnum = index
           data[generation+1][index].createFile()
         generation = generation+1
