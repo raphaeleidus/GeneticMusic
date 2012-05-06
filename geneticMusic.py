@@ -72,10 +72,15 @@ class Song:
           fourBeatChords= fourBeatChords + 1
         sortedNotes = sorted(chord.notes)
         if(len(sortedNotes) <= 1):
-          totScore = totScore + 8
+          totScore = totScore + 6
         elif(len(sortedNotes) == 2):
           totScore = totScore - 1
-        elif():
+        elif(len(sortedNotes) < 8):
+          candidates = types[len(sortedNotes)].values()
+          spacing =[sortedNotes[a+1] - sortedNotes[a] for a in range(len(sortedNotes)-1)]
+          for candidate in candidates:
+            if (spacing == candidate):
+              totScore = totScore + 16
           print("possible Chord")
       if (fourBeatChords < 15):
         totScore = totScore + 1
