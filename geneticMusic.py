@@ -73,7 +73,7 @@ class Song:
         sortedNotes = sorted(chord.notes)
         if(len(sortedNotes) <= 1):
           totScore = totScore + 6
-        elif(len(sortedNotes) < 8 && len(sortedNotes) > 2):
+        elif(len(sortedNotes) < 8 and len(sortedNotes) > 2):
           candidates = types[len(sortedNotes)].values()
           spacing =[sortedNotes[a+1] - sortedNotes[a] for a in range(len(sortedNotes)-1)]
           for candidate in candidates:
@@ -105,9 +105,16 @@ class Song:
     def breed(self):
       self.score = -1
       self.name = randomWord(0) + " " + randomWord(1)
-      self.bpm = self.parents[random.randrange(2)].bpm
+      if(random.random() < 0.1):
+        self.bpm = random.randint(100, 300)
+      else:
+        self.bpm = self.parents[random.randrange(2)].bpm
       for i in range(20):
-        self.chords[i] = self.parents[random.randrange(2)].chords[i]    
+        if(random.random() < 0.1):
+          self.chords[i] = Chord()
+            self.chords[i].addRandomNotes(int(random.triangular(0,7,3)))
+        else:
+          self.chords[i] = self.parents[random.randrange(2)].chords[i]    
     def mutate(self):
       self.mutationPoints = 10
       mutations = [self.mBPM]
