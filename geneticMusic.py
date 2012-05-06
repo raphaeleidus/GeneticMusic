@@ -152,7 +152,7 @@ def main(argv=None):
         print ("Loading last generation")
         data = pickle.load(open(filename+".pkl", "rb"))
         generation = max(list(data.keys()))
-        while(true):
+        while(True):
           print("Processing Generation %d" % (generation))
           songs = data[generation]
           for song in songs:
