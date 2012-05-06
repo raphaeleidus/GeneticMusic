@@ -34,7 +34,7 @@ class Chord:
     def addRandomNotes(self, count):
         self.notes = random.sample(range(48), count)
     def __repr__(self):
-      return ( "%s" % (repr(self.degrees)))
+      return ( "%s" % (repr(self.notes)))
 
 def randomWord(wordType):
     urls = ["http://api.wordnik.com/v4/words.json/randomWord?hasDictionaryDef=true&includePartOfSpeech=adverb,adjective&api_key=1a726d79d51b76f7664090f16750cc75292f05d3df6083875",
@@ -67,7 +67,10 @@ class Song:
       for chord in self.chords:
         if (chord.duration == 4):
           fourBeatChords= fourBeatChords + 1
-        #sortedNotes = 
+        sortedNotes = sorted(chord.notes)
+        if(len(sortedNotes) <= 1):
+          totScore = totScore + 8
+        print(sortedNotes)
       if (fourBeatChords < 15):
         totScore = totScore + 1
       if (fourBeatChords < 10):
