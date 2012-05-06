@@ -90,7 +90,7 @@ class Song:
         MIDI.addTempo(0,0, self.bpm)
         beat = 0
         for chord in self.chords:
-            for degree in chord.degrees:
+            for note in chord.notes:
                 MIDI.addNote(0,0,degree+45,beat,1,chord.intensity)
             beat = beat + 1
         if not os.path.exists(songFolder):
