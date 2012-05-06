@@ -26,53 +26,14 @@ notes = {}
 for i in range(len(noteList)): #build dictionary of notes to lookup the name of the note later
     notes[i+base-octave] = noteList[i]
 
-class Mode:
-    def __init__(self, name, notes):
-        self.name = name
-        self.notes = notes
-
-modes = [
-    Mode("Ionian", [0,2,4,5,7,9,11]),
-    Mode("Dorian", [0,2,3,5,7,9,10]),
-    Mode("Phrygian", [0,1,3,5,7,8,10]),
-    Mode("Freygish", [0,1,4,5,7,9,11]),
-    Mode("Lydian", [0,2,4,6,7,9,11]),
-    Mode("Mixolydian", [0,2,4,5,7,9,10]),
-    Mode("Aeolian", [0,2,3,5,7,8,10]),
-    Mode("Locrian", [0,1,3,5,6,8,10])
-    ]
-
-class Scale:
-    def __init__(self, key, mode):
-      self.start = key
-      self.key = notes[key]
-      self.mode = mode
-      self.scaleNotes = []
-      for note in self.mode.notes:
-          self.scaleNotes.append(note+self.start-octave)
-      for note in self.mode.notes:
-          self.scaleNotes.append(note+self.start)
-      for note in self.mode.notes:
-          self.scaleNotes.append(note+self.start+octave)
-      self.scaleNotes.append(self.start+(2*octave)) #repeat the first scale degree 2 octaves up
-    def mainOctave(self):
-      return self.scaleNotes[8-1:(2*8)]
-    def __repr__(self):
-      return repr("%s %s" % (self.key, self.mode.name))
-
-
+pprint(notes)
 class Chord:
     types = {"triad":[0,2,4], "seventh":[0,2,4,6], "dominant9":[0,2,4,8], "dominant11":[0,2,4,8,10], "dominant13":[0,2,3,8,12]}
     def __init__(self):
         self.degrees=[] #scale degrees
         self.intensity = random.randint(1, 10) * 10
     def addRandomNotes(self, count):
-        #if count != 0:
-          #count = 1
-        self.degrees = random.sample(range(22), count)
-        # self.chordType = random.choice(list(Chord.types.keys()))
-        # startDegree = random.randint(0,9)
-        # self.degrees = [degree+startDegree for degree in Chord.types[self.chordType]]
+        self.degrees = random.sample(range(48), count)
     def __repr__(self):
       return ( "%s" % (repr(self.degrees)))
       
@@ -115,9 +76,6 @@ class Song:
         self.songnum = 0
         self.name = randomWord(0) + " " + randomWord(1)
         self.bpm = random.randint(100, 300)
-        self.key = random.randint(base,base+octave-1)
-        self.mode = random.choice(modes)
-        self.scale = Scale(self.key, self.mode)
         self.chords = []
         self.score = -1
         self.parents = None
@@ -129,36 +87,27 @@ class Song:
     def mBPM(self):
       self.bpm = random.randint(100, 300)
       
-    def mKey(self):
-      self.key = random.randint(base,base+octave-1)
-      
-    def mMode(self):
-      self.mode = random.choice(modes)
-      
     def mChord(self, chordNum):
-      self.chords[chordNum].mutate()
+      self.chords[chordNum] = Chord()
+      self.chords[chordNum].addRandomNotes(int(random.triangular(0,7,3)))
     
     def __repr__(self):
-        return ( "Song(%s.%s: %s, Score:%s, Tempo:%s, Scale:%s, Chords:%s)" %(repr(self.generation), repr(self.songnum), repr(self.name), repr(self.score), repr(self.bpm), repr(self.scale), repr(self.chords))) 
-
-    def getKey(self):
-        return notes[self.key]
+        return ( "Song(%s.%s: %s, Score:%s, Tempo:%s, Chords:%s)" %(repr(self.generation), repr(self.songnum), repr(self.name), repr(self.score), repr(self.bpm), repr(self.chords))) 
         
     def mutate(self):
       self.mutationPoints = 10
-      mutations = [self.mBPM, self.mKey, self.mMode, self.mChord]
+      mutations = [self.mBPM]
+      for i in range(20):
+        mutations.append(self.mChord)
       chordsAvail = [i for i in range(20)]
       self.name = randomWord(0) + " " + randomWord(1)
       while self.mutationPoints >= 1:
-        prop = random.randint(0,22)
-        if prop >= len(mutations):
-          prop = -1
-        mutator = mutations[prop]
+        mutator = random.choice(mutations)
         if mutator == self.mChord:
-          self.mChord(chordsAvail.pop(random.randrange(len(chordsAvail))))
+          self.mChord(random.randrange(len(chordsAvail)))
         else:
           mutator()
-          mutations.remove(mutator)
+        mutations.remove(mutator)
         self.mutationPoints = self.mutationPoints - 1
 
     def createFile(self):
@@ -168,7 +117,7 @@ class Song:
         beat = 0
         for chord in self.chords:
             for degree in chord.degrees:
-                MIDI.addNote(0,0,self.scale.scaleNotes[degree],beat,1,chord.intensity)
+                MIDI.addNote(0,0,degree+45,beat,1,chord.intensity)
             beat = beat + 1
         if not os.path.exists(songFolder):
           os.makedirs(songFolder)
