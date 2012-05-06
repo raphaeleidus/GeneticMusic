@@ -60,17 +60,23 @@ class Song:
     def AutoScore(self):
       totScore = 0
       fourBeatChords = 0
-      types = {"majorTriad":[4, 3], "minorTriad":[3, 4], "augTriad":[4, 4], "dimTriad":[3, 3],
-        "majorSeventh":[4, 3, 4], "minorSeventh":[3, 4, 3], "augSeventh":[4, 4, 2], "dimSeventh":[3, 3, 3], 
-        "halfDimSeventh":[3, 3, 4], "minorMajorSeventh":[3, 4, 3], "domSeventh":[4, 3, 3], "augMajorSeventh":[4,4,3], 
-        "domNinth":[4,3,3,4], "domEleventh":[4,3,3,4,3], "domThirteenth":[4,3,3,4,3,4]}
+      types= {3: {"majorTriad":[4, 3], "minorTriad":[3, 4], "augTriad":[4, 4], "dimTriad":[3, 3]),
+        4: {"majorSeventh":[4, 3, 4], "minorSeventh":[3, 4, 3], "augSeventh":[4, 4, 2], "dimSeventh":[3, 3, 3], 
+        "halfDimSeventh":[3, 3, 4], "minorMajorSeventh":[3, 4, 3], "domSeventh":[4, 3, 3], "augMajorSeventh":[4,4,3]},
+        5: {"domNinth":[4,3,3,4]},
+        6: {"domEleventh":[4,3,3,4,3]},
+        7: {"domThirteenth":[4,3,3,4,3,4]}
+      }
       for chord in self.chords:
         if (chord.duration == 4):
           fourBeatChords= fourBeatChords + 1
         sortedNotes = sorted(chord.notes)
         if(len(sortedNotes) <= 1):
           totScore = totScore + 8
-        print(sortedNotes)
+        elif(len(sortedNotes) == 2):
+          totScore = totScore - 1
+        elif():
+          print("possible Chord")
       if (fourBeatChords < 15):
         totScore = totScore + 1
       if (fourBeatChords < 10):
