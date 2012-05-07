@@ -78,7 +78,7 @@ class Song:
           spacing =[sortedNotes[a+1] - sortedNotes[a] for a in range(len(sortedNotes)-1)]
           for candidate in candidates:
             if (spacing == candidate):
-              totScore = totScore + 16
+              totScore = totScore + 36
               break
       if (fourBeatChords < 15):
         totScore = totScore + 1
@@ -102,26 +102,33 @@ class Song:
         return ( "Song(%s.%s: %s, Score:%s, Tempo:%s, Chords:%s)" %(repr(self.generation), repr(self.songnum), repr(self.name), repr(self.score), repr(self.bpm), repr(self.chords))) 
     
 
-    def breed(self):
+    def breed(self, parentA, parentB):
+      parents = [parentA, parentB]
       self.score = -1
-      self.name = randomWord(0) + " " + randomWord(1)
-      if(random.random() < 0.1):
+      if self.generation % 10 == 0:
+        self.name = randomWord(0) + " " + randomWord(1)
+      else:
+        self.name = "Child"
+      if(random.random() < 0.3):
         self.bpm = random.randint(100, 300)
       else:
-        self.bpm = self.parents[random.randrange(2)].bpm
+        self.bpm = parents[random.randrange(2)].bpm
       for i in range(20):
-        if(random.random() < 0.1):
+        if(random.random() < 0.15):
           self.chords[i] = Chord()
-            self.chords[i].addRandomNotes(int(random.triangular(0,7,3)))
+          self.chords[i].addRandomNotes(int(random.triangular(0,7,3)))
         else:
-          self.chords[i] = self.parents[random.randrange(2)].chords[i]    
+          self.chords[i] = copy.deepcopy(parents[random.randrange(2)].chords[i])
     def mutate(self):
       self.mutationPoints = 10
       mutations = [self.mBPM]
       for i in range(20):
         mutations.append(self.mChord)
       chordsAvail = [i for i in range(20)]
-      self.name = randomWord(0) + " " + randomWord(1)
+      if self.generation % 10 == 0:
+        self.name = randomWord(0) + " " + randomWord(1)
+      else:
+        self.name = "Mutant"
       while self.mutationPoints >= 1:
         mutator = random.choice(mutations)
         if mutator == self.mChord:
@@ -174,12 +181,12 @@ def main(argv=None):
           for song in songs:
               print ("%d.%d: %s" % (song.generation, song.songnum, song.name))
               while song.score == -1:
-                  if(generation > 99 or (generation > 19 and generation % 10 == 0)):
+                  if(generation > 199 or (generation > 99 and generation % 10 == 0)):
+                      pickle.dump(data, open(filename+".pkl", "wb"))
                       while True:
                           try:
                               score = float(prompt("Song score"))
                               song.score = score
-                              pickle.dump(data, open(filename+".pkl", "wb"))
                               break
                           except ValueError:
                               print("Please enter a valid number")
@@ -187,7 +194,6 @@ def main(argv=None):
                     song.score = song.AutoScore()
               print ("Score: %s" % (song.score))
               print ()
-          pickle.dump(data, open(filename+".pkl", "wb"))
           songs = sorted(songs, key=lambda song: song.score, reverse=True)
           print ("Top 5 Songs of generation %d:"%(generation))
           data[generation+1]=[]
@@ -198,7 +204,8 @@ def main(argv=None):
             data[generation+1][index].generation = generation+1
             data[generation+1][index].score = -1
             data[generation+1][index].songnum = index
-            data[generation+1][index].createFile()
+            if(generation+1 % 10 == 0):
+              data[generation+1][index].createFile()
           generation = generation+1
           print ("Generation %d initialized with 5 survivors. Mutating offspring now"%(generation))
           songs = data[max(list(data.keys()))]
@@ -209,22 +216,21 @@ def main(argv=None):
             # mutated clone
             parent = songs[i]
             clone = copy.deepcopy(parent)
-            clone.parents = [parent]
             clone.mutate()
             clone.songnum = len(songs)
-            clone.createFile()
+            if(clone.generation % 10 == 0):
+              clone.createFile()
             songs.append(clone)
             # end of mutated clone
 
             for k in range(i+1, 5):
               clone = copy.deepcopy(parent)
-              clone.parents = [songs[i], songs[k]]
-              clone.breed()
+              clone.breed(songs[i], songs[k])
               clone.songnum = len(songs)
               clone.createFile()
               songs.append(clone)
           data[max(list(data.keys()))] = songs
-          pickle.dump(data, open(filename+".pkl", "wb"))
+          
           print ("Generation %d filled and saved to file."%(generation))
             
     elif choice == "2":
