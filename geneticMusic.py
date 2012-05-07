@@ -181,7 +181,7 @@ def main(argv=None):
           for song in songs:
               print ("%d.%d: %s" % (song.generation, song.songnum, song.name))
               while song.score == -1:
-                  if(generation > 199 or (generation > 99 and generation % 10 == 0)):
+                  if(generation > 499 or (generation > 299 and generation % 10 == 0)):
                       pickle.dump(data, open(filename+".pkl", "wb"))
                       while True:
                           try:
@@ -204,8 +204,7 @@ def main(argv=None):
             data[generation+1][index].generation = generation+1
             data[generation+1][index].score = -1
             data[generation+1][index].songnum = index
-            if(generation+1 % 10 == 0):
-              data[generation+1][index].createFile()
+            data[generation+1][index].createFile()
           generation = generation+1
           print ("Generation %d initialized with 5 survivors. Mutating offspring now"%(generation))
           songs = data[max(list(data.keys()))]
@@ -218,8 +217,7 @@ def main(argv=None):
             clone = copy.deepcopy(parent)
             clone.mutate()
             clone.songnum = len(songs)
-            if(clone.generation % 10 == 0):
-              clone.createFile()
+            clone.createFile()
             songs.append(clone)
             # end of mutated clone
 
